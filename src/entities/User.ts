@@ -1,4 +1,20 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  OneToMany,
+  ManyToMany,
+  ManyToOne,
+  JoinColumn,
+  Relation,
+  JoinTable,
+} from 'typeorm';
+
+import { Library } from './Library';
+import { Friend } from './Friend';
+import { Language } from './Language';
+import { Game } from './Game';
 
 @Entity()
 export class User {
@@ -14,6 +30,23 @@ export class User {
   @Column({ default: false })
   verifiedEmail: boolean;
 
-  @Column({ default: 0 })
-  profileViews: number;
+  @Column({ unique: true })
+  firstName: string;
+
+  @Column({ unique: true })
+  lastName: string;
+
+  @OneToOne(() => Library, (library) => library.user)
+  @JoinColumn()
+  library: Relation<Library>;
+
+  @OneToMany(() => Friend, (friends) => friends.user)
+  friends: Relation<Friend>[];
+
+  @ManyToOne(() => Game, (game) => game.users)
+  game: Relation<Game>;
+
+  @ManyToMany(() => Language, (languages) => languages.users)
+  @JoinTable()
+  languages: Relation<Language>[];
 }

@@ -10,7 +10,7 @@ const { PORT } = process.env;
 
 app.post('/api/users', registerUser); // Create an account
 app.post('/api/login', logIn); // Log in to an account
-
+app.post('/api/users/{userId}/email');
 app.listen(PORT, () => {
   console.log(`Listening at http://localhost:${PORT}`);
 });
