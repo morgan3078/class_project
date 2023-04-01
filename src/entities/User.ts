@@ -30,12 +30,6 @@ export class User {
   @Column({ default: false })
   verifiedEmail: boolean;
 
-  @Column({ unique: true })
-  firstName: string;
-
-  @Column({ unique: true })
-  lastName: string;
-
   @OneToOne(() => Library, (library) => library.user)
   @JoinColumn()
   library: Relation<Library>;

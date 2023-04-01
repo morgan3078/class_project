@@ -5,9 +5,7 @@ import {
   addUser,
   getUserByEmail,
   getUserById,
-  incrementProfileViews,
   allUserData,
-  resetAllProfileViews,
   updateEmailAddress,
 } from '../models/UserModel';
 import { parseDatabaseError } from '../utils/db-utils';
@@ -97,15 +95,12 @@ async function getUserProfileData(req: Request, res: Response): Promise<void> {
   const { targetUserId } = req.params as UserIdParam;
 
   // Get the user account
-  let user = await getUserById(targetUserId);
+  const user = await getUserById(targetUserId);
 
   if (!user) {
     res.sendStatus(404); // 404 Not Found
     return;
   }
-
-  // Now update their profile views
-  user = await incrementProfileViews(user);
 
   res.json(user);
 }

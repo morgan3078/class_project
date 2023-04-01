@@ -5,7 +5,7 @@ import { Language } from './Language';
 @Entity()
 export class Library {
   @PrimaryGeneratedColumn('uuid')
-  LibraryId: string;
+  libraryId: string;
 
   @Column({ default: false })
   wordUsed: boolean;
