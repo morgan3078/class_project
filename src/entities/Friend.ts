@@ -5,7 +5,7 @@ import { User } from './User';
 @Entity()
 export class Friend {
   @Column()
-  friendID: string;
+  friendId: string;
 
   @Column()
   friendName: string;

@@ -15,16 +15,16 @@ async function getAllUserProfiles(req: Request, res: Response): Promise<void> {
 }
 
 async function registerUser(req: Request, res: Response): Promise<void> {
-  const { email, password } = req.body as AuthRequest;
+  const { email, password, username } = req.body as NewUserRequest;
 
   // IMPORTANT: Hash the password
   const passwordHash = await argon2.hash(password);
 
   try {
     // IMPORTANT: Store the `passwordHash` and NOT the plaintext password
-    const newUser = await addUser(email, passwordHash);
+    const newUser = await addUser(username, email, passwordHash);
     console.log(newUser);
-    res.sendStatus(201);
+    res.redirect('/login');
   } catch (err) {
     console.error(err);
     const databaseErrorMessage = parseDatabaseError(err);
@@ -49,7 +49,7 @@ async function logIn(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  const { email, password } = req.body as AuthRequest;
+  const { email, password } = req.body as NewUserRequest;
 
   const user = await getUserByEmail(email);
   if (!user) {
@@ -85,6 +85,7 @@ async function logIn(req: Request, res: Response): Promise<void> {
   req.session.authenticatedUser = {
     userId: user.userId,
     email: user.email,
+    username: user.username,
   };
   req.session.isLoggedIn = true;
 
@@ -92,10 +93,10 @@ async function logIn(req: Request, res: Response): Promise<void> {
 }
 
 async function getUserProfileData(req: Request, res: Response): Promise<void> {
-  const { targetUserId } = req.params as UserIdParam;
+  const { userId } = req.params as UserIdParam;
 
   // Get the user account
-  const user = await getUserById(targetUserId);
+  const user = await getUserById(userId);
 
   if (!user) {
     res.sendStatus(404); // 404 Not Found
@@ -106,14 +107,14 @@ async function getUserProfileData(req: Request, res: Response): Promise<void> {
 }
 
 async function updateUserEmail(req: Request, res: Response): Promise<void> {
-  const { targetUserId } = req.params as UserIdParam;
+  const { userId } = req.params as UserIdParam;
 
   // NOTES: Access the data from `req.session`
   const { isLoggedIn, authenticatedUser } = req.session;
 
   // NOTES: We need to make sure that this client is logged in AND
   //        they are try to modify their own user account
-  if (!isLoggedIn || authenticatedUser.userId !== targetUserId) {
+  if (!isLoggedIn || authenticatedUser.userId !== userId) {
     res.sendStatus(403); // 403 Forbidden
     return;
   }
@@ -121,7 +122,7 @@ async function updateUserEmail(req: Request, res: Response): Promise<void> {
   const { email } = req.body as { email: string };
 
   // Get the user account
-  const user = await getUserById(targetUserId);
+  const user = await getUserById(userId);
 
   if (!user) {
     res.sendStatus(404); // 404 Not Found
@@ -130,7 +131,7 @@ async function updateUserEmail(req: Request, res: Response): Promise<void> {
 
   // Now update their email address
   try {
-    await updateEmailAddress(targetUserId, email);
+    await updateEmailAddress(userId, email);
   } catch (err) {
     // The email was taken so we need to send an error message
     console.error(err);

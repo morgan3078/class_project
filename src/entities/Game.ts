@@ -1,13 +1,16 @@
-import { Entity, Column, OneToMany, ManyToOne, Relation } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, Relation } from 'typeorm';
 import { User } from './User';
 import { Language } from './Language';
 
 @Entity()
 export class Game {
+  @PrimaryGeneratedColumn('uuid')
+  gameId: string;
+
   @Column()
   languageID: string;
 
-  @Column()
+  @Column({ default: 100 })
   timer: number;
 
   @Column({ default: 0 })
@@ -15,6 +18,12 @@ export class Game {
 
   @Column({ default: 0 })
   theirMistakes: number;
+
+  @Column({ default: 0 })
+  wordsUsed: number;
+
+  @Column({ default: 0 })
+  wordCount: number;
 
   @Column({ default: false })
   alreadyUsed: boolean;

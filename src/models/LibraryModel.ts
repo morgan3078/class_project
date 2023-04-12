@@ -25,4 +25,15 @@ async function updateLibrary(library: Library): Promise<Library> {
   return updatedLibrary;
 }
 
-export { getLibraryById, updateLibrary };
+async function libraryBelongsToUser(libraryId: string, userId: string): Promise<boolean> {
+  const libraryExists = await libraryRepository
+    .createQueryBuilder('library')
+    .leftJoinAndSelect('library.user', 'user')
+    .where({ library: { libraryId } })
+    .andWhere({ user: { userId } })
+    .getExists();
+
+  return libraryExists;
+}
+
+export { getLibraryById, updateLibrary, libraryBelongsToUser };
