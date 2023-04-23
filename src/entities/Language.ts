@@ -19,6 +19,12 @@ export class Language {
   @PrimaryGeneratedColumn('uuid')
   languageID: string;
 
+  @Column({ default: '' })
+  language: string;
+
+  @Column({ default: 0 })
+  usersUsing: number;
+
   @Column()
   wordCount: number;
 
@@ -29,8 +35,8 @@ export class Language {
   @JoinTable()
   words: Relation<Words>[];
 
-  @ManyToMany(() => User, (users) => users.languages)
-  users: Relation<User>[];
+  @ManyToOne(() => User, (user) => user.languages)
+  user: Relation<User>;
 
   @OneToMany(() => Game, (games) => games.language)
   games: Relation<Game>[];

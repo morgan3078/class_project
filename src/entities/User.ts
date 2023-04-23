@@ -4,7 +4,6 @@ import {
   Column,
   OneToOne,
   OneToMany,
-  ManyToMany,
   ManyToOne,
   JoinColumn,
   Relation,
@@ -40,7 +39,7 @@ export class User {
   friendListId: string;
 
   @Column({ default: 0 })
-  friendListSize: number;
+  numOfFriends: number;
 
   @OneToOne(() => Library, (library) => library.user)
   @JoinColumn()
@@ -52,7 +51,7 @@ export class User {
   @ManyToOne(() => Game, (game) => game.users)
   game: Relation<Game>;
 
-  @ManyToMany(() => Language, (languages) => languages.users)
+  @OneToMany(() => Language, (languages) => languages.user)
   @JoinTable()
   languages: Relation<Language>[];
 }

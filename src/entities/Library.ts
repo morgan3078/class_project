@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, OneToMany, Relation } from 'typeorm';
 import { User } from './User';
 import { Language } from './Language';
+import { Words } from './Words';
 
 @Entity()
 export class Library {
@@ -21,4 +22,7 @@ export class Library {
 
   @OneToMany(() => Language, (languages) => languages.library)
   languages: Relation<Language>[];
+
+  @OneToMany(() => Words, (words) => words.library)
+  words: Relation<Words>[];
 }

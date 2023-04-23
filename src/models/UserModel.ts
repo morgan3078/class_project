@@ -63,12 +63,12 @@ async function updateName(userId: string, newName: string): Promise<void> {
 
 async function incrementFriends(user: User): Promise<User> {
   const userUpdate = user;
-  userUpdate.friendListSize += 1;
+  userUpdate.numOfFriends += 1;
 
   await userRepository
     .createQueryBuilder()
     .update(User)
-    .set({ friendListSize: userUpdate.friendListSize })
+    .set({ numOfFriends: userUpdate.numOfFriends })
     .where({ userId: userUpdate.userId })
     .execute();
   return userUpdate;
@@ -76,14 +76,14 @@ async function incrementFriends(user: User): Promise<User> {
 
 async function decrementFriends(user: User): Promise<User> {
   const userUpdate = user;
-  userUpdate.friendListSize -= 1;
-  if (userUpdate.friendListSize < 0) {
-    userUpdate.friendListSize = 0;
+  userUpdate.numOfFriends -= 1;
+  if (userUpdate.numOfFriends < 0) {
+    userUpdate.numOfFriends = 0;
   }
   await userRepository
     .createQueryBuilder()
     .update(User)
-    .set({ friendListSize: userUpdate.friendListSize })
+    .set({ numOfFriends: userUpdate.numOfFriends })
     .where({ userId: userUpdate.userId })
     .execute();
   return userUpdate;

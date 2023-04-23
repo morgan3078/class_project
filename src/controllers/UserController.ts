@@ -7,21 +7,29 @@ import {
   getUserById,
   allUserData,
   updateEmailAddress,
+  updateName,
+  //   incrementFriends,
+  //   decrementFriends,
 } from '../models/UserModel';
 import { parseDatabaseError } from '../utils/db-utils';
 
-async function getAllUserProfiles(req: Request, res: Response): Promise<void> {
-  res.json(await allUserData());
+async function getAllUsers(req: Request, res: Response): Promise<void> {
+  const users = await allUserData();
+  res.json(users);
+}
+
+async function getUsers(req: Request, res: Response): Promise<void> {
+  const { userId } = req.params as UserIdParam;
+  const users = await getUserById(userId);
+  res.json(users);
 }
 
 async function registerUser(req: Request, res: Response): Promise<void> {
-  const { email, password, username } = req.body as NewUserRequest;
-
-  // IMPORTANT: Hash the password
+  const { username, email, password } = req.body as NewUserRequest;
+  // Hash the user's password
   const passwordHash = await argon2.hash(password);
-
   try {
-    // IMPORTANT: Store the `passwordHash` and NOT the plaintext password
+    // Store the hash instead of their actual password
     const newUser = await addUser(username, email, passwordHash);
     console.log(newUser);
     res.redirect('/login');
@@ -49,11 +57,12 @@ async function logIn(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  const { email, password } = req.body as NewUserRequest;
+  const { email, password } = req.body as AuthRequest;
 
   const user = await getUserByEmail(email);
   if (!user) {
-    res.sendStatus(404); // 404 Not Found - email doesn't exist
+    // res.sendStatus(404); // 404 Not Found - email doesn't exist
+    res.redirect('/login');
     return;
   }
 
@@ -75,6 +84,7 @@ async function logIn(req: Request, res: Response): Promise<void> {
     }
 
     res.sendStatus(404); // 404 Not Found - user with email/pass doesn't exist
+    res.redirect('/login');
     return;
   }
 
@@ -89,7 +99,7 @@ async function logIn(req: Request, res: Response): Promise<void> {
   };
   req.session.isLoggedIn = true;
 
-  res.sendStatus(200);
+  res.render('homePage', { userName: user.username, userId: user.userId });
 }
 
 async function getUserProfileData(req: Request, res: Response): Promise<void> {
@@ -97,50 +107,67 @@ async function getUserProfileData(req: Request, res: Response): Promise<void> {
 
   // Get the user account
   const user = await getUserById(userId);
-
   if (!user) {
     res.sendStatus(404); // 404 Not Found
     return;
   }
 
-  res.json(user);
+  // res.json(user);
+  res.render('profilePage', {
+    userId: user.userId,
+    userName: user.username,
+    email: user.email,
+    numOfFriends: user.numOfFriends,
+  });
 }
 
+// `/users/${user.userId}`
 async function updateUserEmail(req: Request, res: Response): Promise<void> {
   const { userId } = req.params as UserIdParam;
-
-  // NOTES: Access the data from `req.session`
-  const { isLoggedIn, authenticatedUser } = req.session;
-
-  // NOTES: We need to make sure that this client is logged in AND
-  //        they are try to modify their own user account
-  if (!isLoggedIn || authenticatedUser.userId !== userId) {
-    res.sendStatus(403); // 403 Forbidden
-    return;
-  }
-
-  const { email } = req.body as { email: string };
-
+  const { newEmail } = req.body as NewEmailBody;
   // Get the user account
   const user = await getUserById(userId);
-
   if (!user) {
     res.sendStatus(404); // 404 Not Found
     return;
   }
-
-  // Now update their email address
+  // Update emaial
   try {
-    await updateEmailAddress(userId, email);
+    await updateEmailAddress(userId, newEmail);
+    user.email = newEmail;
+    res.json(user);
   } catch (err) {
-    // The email was taken so we need to send an error message
     console.error(err);
     const databaseErrorMessage = parseDatabaseError(err);
     res.status(500).json(databaseErrorMessage);
-    return;
   }
-
-  res.sendStatus(200);
 }
 
-export { registerUser, logIn, getUserProfileData, getAllUserProfiles, updateUserEmail };
+async function updateUserName(req: Request, res: Response): Promise<void> {
+  const { userId } = req.params as UserIdParam;
+  const { newName } = req.body as NewNameBody;
+  const user = await getUserById(userId);
+  if (!user) {
+    res.sendStatus(404); // 404 Not Found
+    return;
+  }
+  try {
+    await updateName(userId, newName);
+    user.username = newName;
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    const databaseErrorMessage = parseDatabaseError(err);
+    res.status(500).json(databaseErrorMessage);
+  }
+}
+
+export {
+  getUsers,
+  registerUser,
+  logIn,
+  getAllUsers,
+  updateUserEmail,
+  updateUserName,
+  getUserProfileData,
+};

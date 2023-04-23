@@ -1,5 +1,6 @@
-import { Entity, Column, ManyToMany, Relation } from 'typeorm';
+import { Entity, Column, ManyToMany, ManyToOne, Relation } from 'typeorm';
 import { Language } from './Language';
+import { Library } from './Library';
 
 @Entity()
 export class Words {
@@ -11,4 +12,7 @@ export class Words {
 
   @ManyToMany(() => Language, (languages) => languages.words)
   languages: Relation<Language>[];
+
+  @ManyToOne(() => Library, (library) => library.words)
+  library: Relation<Library>;
 }

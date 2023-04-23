@@ -5,22 +5,27 @@ import { User } from '../entities/User';
 const friendRepository = AppDataSource.getRepository(Friend);
 
 async function getFriendsByUserId(userId: string): Promise<Friend[]> {
-  const friends = await friendRepository
+  const links = await friendRepository
     .createQueryBuilder('friend')
-    .where({ user: { userId } })
-    .leftJoinAndSelect('friend.user', 'user')
-    .select(['user', 'friend.friendId', 'friend.friendName'])
+    .where({ user: { userId } }) // NOTES: This is how you do nested WHERE clauses
+    .leftJoinAndSelect('friend.user', 'user') /* TODO: specify the relation you want to join with */
+    .select([
+      'user',
+      'friend.friendId',
+      'friend.friendName',
+    ]) /* TODO: specify the fields you want */
     .getMany();
-
-  return friends;
+  return links;
 }
 
-async function addFriend(friendId: string, friendName: string, user: User): Promise<Friend> {
+async function addFriend(friendId: string, friendName: string, creator: User): Promise<Friend> {
+  let num = creator.numOfFriends;
+  num += 1;
   let newFriend = new Friend();
   newFriend.friendId = friendId;
   newFriend.friendName = friendName;
-  newFriend.user = user;
-  newFriend.user.friendListSize += 1;
+  newFriend.user = creator;
+  newFriend.user.numOfFriends = num;
   newFriend = await friendRepository.save(newFriend);
   return newFriend;
 }
@@ -37,7 +42,7 @@ async function friendBelongsToUser(friendId: string, userId: string): Promise<bo
 
 async function deleteFriendById(friendId: string): Promise<void> {
   await friendRepository
-    .createQueryBuilder('friendId')
+    .createQueryBuilder('friend')
     .delete()
     .where('friendId = :friendId', { friendId })
     .execute();
