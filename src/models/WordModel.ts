@@ -1,10 +1,9 @@
 import { AppDataSource } from '../dataSource';
 import { Words } from '../entities/Words';
-import { Language } from '../entities/Language';
 
 const wordRepository = AppDataSource.getRepository(Words);
 
-async function getWordsByLanguageID(languageID: string): Promise<Words[]> {
+async function getWordsByLanguageID(languageID: string): Promise<Words[] | null> {
   const words = await wordRepository
     .createQueryBuilder('words')
     .leftJoinAndSelect('words.languages', 'languages')
@@ -14,9 +13,15 @@ async function getWordsByLanguageID(languageID: string): Promise<Words[]> {
   return words;
 }
 
-async function wordIsReal(word: string): Promise<boolean> {
-  const newWord = new Words();
-  newWord.word = word;
+async function languageHasWord(word: string, languageID: string): Promise<boolean> {
+  const reviewExists = await wordRepository
+    .createQueryBuilder('words')
+    .leftJoinAndSelect('words.languages', 'languages')
+    .where('words.word = :word', { word })
+    .andWhere('languages.languageID = :languageID', { languageID })
+    .getExists();
+
+  return reviewExists;
 }
 
-export { getWordsByLanguageID };
+export { getWordsByLanguageID, languageHasWord };
