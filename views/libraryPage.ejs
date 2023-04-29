@@ -17,6 +17,15 @@
   <h2>There are <%= words.length %> words in the library. </h2>
   <% } %>
 
+  <ul>
+    <% for ( const wording of words ) {%>
+    <a href="/words/ <%= words.word %>">
+      <li class="word">
+        <h3 class="words"><%= wording %></h3>
+      </li>
+    </a>
+    <% } %>
+  </ul>
 
 </body>
 
