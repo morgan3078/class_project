@@ -10,9 +10,6 @@ export class Words {
   @Column()
   word: string;
 
-  @Column()
-  definition: string;
-
   @ManyToMany(() => Language, (languages) => languages.words)
   languages: Relation<Language>[];
 

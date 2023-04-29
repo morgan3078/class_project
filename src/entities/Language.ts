@@ -16,7 +16,7 @@ import { Game } from './Game';
 
 @Entity()
 export class Language {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn()
   languageID: string;
 
   @Column({ default: '' })

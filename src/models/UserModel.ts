@@ -37,7 +37,31 @@ async function getUserById(userId: string): Promise<User | null> {
   return user;
 }
 
+async function getUserByName(username: string): Promise<User | null> {
+  const user = await userRepository
+    .createQueryBuilder('user')
+    .leftJoinAndSelect('user.friends', 'friends')
+    .where('user.username = :username', { username })
+    .getOne();
+  return user;
+}
+
+async function getUserByEmailAndName(email: string, username: string): Promise<User | null> {
+  const user = await userRepository
+    .createQueryBuilder('user')
+    .leftJoinAndSelect('user.friends', 'friends')
+    .where('user.email = :email', { email })
+    .andWhere('user.username = :username', { username })
+    .getOne();
+  return user;
+}
+
 async function allUserData(): Promise<User[]> {
+  return userRepository.find();
+}
+
+async function getAllUsers(): Promise<User[]> {
+  // We use no criteria so this will get all users
   return userRepository.find();
 }
 
@@ -61,41 +85,14 @@ async function updateName(userId: string, newName: string): Promise<void> {
     .execute();
 }
 
-async function incrementFriends(user: User): Promise<User> {
-  const userUpdate = user;
-  userUpdate.numOfFriends += 1;
-
-  await userRepository
-    .createQueryBuilder()
-    .update(User)
-    .set({ numOfFriends: userUpdate.numOfFriends })
-    .where({ userId: userUpdate.userId })
-    .execute();
-  return userUpdate;
-}
-
-async function decrementFriends(user: User): Promise<User> {
-  const userUpdate = user;
-  userUpdate.numOfFriends -= 1;
-  if (userUpdate.numOfFriends < 0) {
-    userUpdate.numOfFriends = 0;
-  }
-  await userRepository
-    .createQueryBuilder()
-    .update(User)
-    .set({ numOfFriends: userUpdate.numOfFriends })
-    .where({ userId: userUpdate.userId })
-    .execute();
-  return userUpdate;
-}
-
 export {
   addUser,
   getUserByEmail,
   getUserById,
   allUserData,
   updateEmailAddress,
-  incrementFriends,
-  decrementFriends,
   updateName,
+  getAllUsers,
+  getUserByName,
+  getUserByEmailAndName,
 };

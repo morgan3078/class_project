@@ -18,13 +18,25 @@ async function getFriendsByUserId(userId: string): Promise<Friend[]> {
   return links;
 }
 
-async function addFriend(friendId: string, friendName: string, creator: User): Promise<Friend> {
-  let num = creator.numOfFriends;
+// async function addFriend(friendId: string, friendName: string, creator: User): Promise<Friend> {
+//  let num = creator.numOfFriends;
+//  num += 1;
+//  let newFriend = new Friend();
+//  newFriend.friendId = friendId;
+//  newFriend.friendName = friendName;
+//  newFriend.user = creator;
+//  newFriend.user.numOfFriends = num;
+//  newFriend = await friendRepository.save(newFriend);
+//  return newFriend;
+// }
+
+async function addFriend(userId: string, friendName: string, creater: User): Promise<Friend> {
+  let num = creater.numOfFriends;
   num += 1;
   let newFriend = new Friend();
-  newFriend.friendId = friendId;
+  newFriend.friendId = userId;
   newFriend.friendName = friendName;
-  newFriend.user = creator;
+  newFriend.user = creater;
   newFriend.user.numOfFriends = num;
   newFriend = await friendRepository.save(newFriend);
   return newFriend;

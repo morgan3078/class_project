@@ -33,4 +33,26 @@ async function libraryUpdate(req: Request, res: Response): Promise<void> {
   res.sendStatus(200);
 }
 
-export { libraryUpdate };
+async function getLibrary(req: Request, res: Response): Promise<void> {
+  const { libraryId } = req.params as { libraryId: string };
+
+  const library = await getLibraryById(libraryId);
+
+  const { isLoggedIn, authenticatedUser } = req.session;
+
+  const belongs = libraryBelongsToUser(libraryId, authenticatedUser.userId);
+
+  if (!isLoggedIn || !belongs) {
+    res.sendStatus(403);
+    return;
+  }
+
+  if (!library) {
+    res.sendStatus(401);
+    return;
+  }
+
+  res.sendStatus(200).json(library);
+}
+
+export { libraryUpdate, getLibrary };

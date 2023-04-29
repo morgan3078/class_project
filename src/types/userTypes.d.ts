@@ -8,11 +8,6 @@ type NewNameBody = {
   newName: string;
 };
 
-type UpdateLibraryRequest = {
-  libraryId: string;
-  languageId: string;
-};
-
 type UserIdParam = {
   userId: string;
 };

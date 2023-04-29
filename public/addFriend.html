@@ -1,0 +1,24 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Friend | Learning Language Game</title>
+  <link rel="stylesheet" href="//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css">
+</head>
+<body>
+  <form action="/api/user/friends/add" method="post">
+    <h1>Add Friend</h1>
+    <div>
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required />
+    </div>
+    <div>
+      <label for="friendName">FriendName:</label>
+      <input type="text" id="friendName" name="friendName" required />
+    </div>
+    <button>Submit</button>
+  </form>
+</body>
+</html>
